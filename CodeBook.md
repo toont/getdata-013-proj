@@ -1,58 +1,108 @@
 # getdata-013-proj
 ## Getting and Cleaning Data Course Project
+### Code Book
 
-library(dplyr)
-library(tidyr)
+2 variables:  
+**Subject** - The range is from 1 to 30. Unique identifier assigned within the subject who performed the activity for each window sample.  
+**Activity** - Activity names. Can be one of the following: `LAYING`, `SITTING`, `STANDING`, `WALKING`, `WALKING_DOWNSTAIRS`, `WALKING_UPSTAIRS`.  
 
-###Check if data set is already downloaded or not. If it's downloaded then unzip it
-if(!file.exists("./UCI HAR Dataset.zip")) {
-        stop("Please download Sumsung dataset into your working directory! Do not unzip it!")
-} else {
-        unzip("./UCI HAR Dataset.zip")
-        
-###Load of test data
-        test_df_sub <- read.table("./UCI HAR Dataset/test/subject_test.txt", col.names = "Subject")
-        test_df_act <- read.table("./UCI HAR Dataset/test/y_test.txt", col.names = "Activity")
-        features <- read.table("./UCI HAR Dataset/features.txt")
-        features_vect <- features$V2
-        test_df_set <- read.table("./UCI HAR Dataset/test/X_test.txt")
-        colnames(test_df_set) <- features_vect
-        rm("features")
-        
-        #Load of training data
-        train_df_sub <- read.table("./UCI HAR Dataset/train/subject_train.txt", col.names = "Subject")
-        train_df_act <- read.table("./UCI HAR Dataset/train/y_train.txt", col.names = "Activity")
-        train_df_set <- read.table("./UCI HAR Dataset/train/X_train.txt")
-        colnames(train_df_set) <- features_vect
-        rm("features_vect")
-        
-        #Merge Subject, Activity and Set data frames
-        test_df <- bind_cols(test_df_sub, test_df_act, test_df_set)
-        train_df <- bind_cols(train_df_sub, train_df_act, train_df_set)
-        rm("test_df_sub", "test_df_act", "test_df_set", "train_df_sub", "train_df_act", "train_df_set")
-                
-        #Merge training and test data frames
-        train_test_df <- bind_rows(train_df, test_df)
-        rm("train_df", "test_df")
-        
-        #Extract mean and standard deviation for each measurement
-        mean_std <- select(train_test_df, Subject, Activity, contains("mean"), contains("Mean"), contains("std"))
-        rm("train_test_df")
-        
-        #Add descriptive activity names
-        act_df <- read.table("./UCI HAR Dataset/activity_labels.txt")
-        act_vect <- as.vector(act_df$V2)
-        
-        for(i in 1:6) {
-                mean_std$Activity <- gsub(i, act_vect[i], mean_std$Activity)
-        }
-        rm("act_df", "act_vect", "i")
-        
-        #Independent data set grouped by Subject and Activity
-        mean_std_gr <- group_by(mean_std, Subject, Activity)
-        
-        #Data set with the average of each variable for each activity and each subject
-        mean_std_gr_sum <- summarise_each(mean_std_gr, funs(mean))
-        rm("mean_std_gr", "mean_std")        
-        
-}
+
+**_All the rest variables below are composed by following rules:_**  
+
+The variables selected for this database come from the **accelerometer** and **gyroscope** 3-axial raw signals `tAcc-XYZ` and `tGyro-XYZ`. These time domain signals (prefix `t` to denote time) were captured at a constant rate of 50 Hz. Then they were filtered using a median filter and a 3rd order low pass Butterworth filter with a corner frequency of 20 Hz to remove noise. Similarly, the acceleration signal was then separated into **body** and **gravity** acceleration signals (`tBodyAcc-XYZ` and `tGravityAcc-XYZ`) using another low pass Butterworth filter with a corner frequency of 0.3 Hz.  
+
+Subsequently, the body linear acceleration and angular velocity were derived in time to obtain **Jerk** signals (`tBodyAccJerk-XYZ` and `tBodyGyroJerk-XYZ`). Also the magnitude of these three-dimensional signals were calculated using the Euclidean norm (`tBodyAccMag`, `tGravityAccMag`, `tBodyAccJerkMag`, `tBodyGyroMag`, `tBodyGyroJerkMag`).  
+
+Finally a Fast Fourier Transform (FFT) was applied to some of these signals producing `fBodyAcc-XYZ`, `fBodyAccJerk-XYZ`, `fBodyGyro-XYZ`, `fBodyAccJerkMag`, `fBodyGyroMag`, `fBodyGyroJerkMag`. (Note the `f` to indicate frequency domain signals).  
+
+These signals were used to estimate variables of the feature vector for each pattern:  
+`-XYZ` is used to denote 3-axial signals in the `X`, `Y` and `Z` directions.  
+
+In addition `mean()` means **Mean value**, `std()` means **Standard deviation** and `angle()` means **Angle between to vectors**.  
+
+**tBodyAcc-mean()-X**  
+**tBodyAcc-mean()-Y**  
+**tBodyAcc-mean()-Z**  
+**tGravityAcc-mean()-X**  
+**tGravityAcc-mean()-Y**  
+**tGravityAcc-mean()-Z**  
+**tBodyAccJerk-mean()-X**  
+**tBodyAccJerk-mean()-Y**  
+**tBodyAccJerk-mean()-Z**  
+**tBodyGyro-mean()-X**  
+**tBodyGyro-mean()-Y**  
+**tBodyGyro-mean()-Z**  
+**tBodyGyroJerk-mean()-X**  
+**tBodyGyroJerk-mean()-Y**  
+**tBodyGyroJerk-mean()-Z**  
+**tBodyAccMag-mean()**  
+**tGravityAccMag-mean()**  
+**tBodyAccJerkMag-mean()**  
+**tBodyGyroMag-mean()**  
+**tBodyGyroJerkMag-mean()**  
+**fBodyAcc-mean()-X**  
+**fBodyAcc-mean()-Y**  
+**fBodyAcc-mean()-Z**  
+**fBodyAcc-meanFreq()-X**  
+**fBodyAcc-meanFreq()-Y**  
+**fBodyAcc-meanFreq()-Z**  
+**fBodyAccJerk-mean()-X**  
+**fBodyAccJerk-mean()-Y**  
+**fBodyAccJerk-mean()-Z**  
+**fBodyAccJerk-meanFreq()-X**  
+**fBodyAccJerk-meanFreq()-Y**  
+**fBodyAccJerk-meanFreq()-Z**  
+**fBodyGyro-mean()-X**  
+**fBodyGyro-mean()-Y**  
+**fBodyGyro-mean()-Z**  
+**fBodyGyro-meanFreq()-X**  
+**fBodyGyro-meanFreq()-Y**  
+**fBodyGyro-meanFreq()-Z**  
+**fBodyAccMag-mean()**  
+**fBodyAccMag-meanFreq()**  
+**fBodyBodyAccJerkMag-mean()**  
+**fBodyBodyAccJerkMag-meanFreq()**  
+**fBodyBodyGyroMag-mean()**  
+**fBodyBodyGyroMag-meanFreq()**  
+**fBodyBodyGyroJerkMag-mean()**  
+**fBodyBodyGyroJerkMag-meanFreq()**  
+**angle(tBodyAccMean,gravity)**  
+**angle(tBodyAccJerkMean),gravityMean)**  
+**angle(tBodyGyroMean,gravityMean)**  
+**angle(tBodyGyroJerkMean,gravityMean)**  
+**angle(X,gravityMean)**  
+**angle(Y,gravityMean)**  
+**angle(Z,gravityMean)**  
+**tBodyAcc-std()-X**  
+**tBodyAcc-std()-Y**  
+**tBodyAcc-std()-Z**  
+**tGravityAcc-std()-X**  
+**tGravityAcc-std()-Y**  
+**tGravityAcc-std()-Z**  
+**tBodyAccJerk-std()-X**  
+**tBodyAccJerk-std()-Y**  
+**tBodyAccJerk-std()-Z**  
+**tBodyGyro-std()-X**  
+**tBodyGyro-std()-Y**  
+**tBodyGyro-std()-Z**  
+**tBodyGyroJerk-std()-X**  
+**tBodyGyroJerk-std()-Y**  
+**tBodyGyroJerk-std()-Z**  
+**tBodyAccMag-std()**  
+**tGravityAccMag-std()**  
+**tBodyAccJerkMag-std()**  
+**tBodyGyroMag-std()**  
+**tBodyGyroJerkMag-std()**  
+**fBodyAcc-std()-X**  
+**fBodyAcc-std()-Y**  
+**fBodyAcc-std()-Z**  
+**fBodyAccJerk-std()-X**  
+**fBodyAccJerk-std()-Y**  
+**fBodyAccJerk-std()-Z**  
+**fBodyGyro-std()-X**  
+**fBodyGyro-std()-Y**  
+**fBodyGyro-std()-Z**  
+**fBodyAccMag-std()**  
+**fBodyBodyAccJerkMag-std()**  
+**fBodyBodyGyroMag-std()**  
+**fBodyBodyGyroJerkMag-std()**  
